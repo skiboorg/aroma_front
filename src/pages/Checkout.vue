@@ -10,7 +10,7 @@
       </div>
     </div>
     <q-separator v-if="cart.items.length>0" spaced="lg"/>
-    <div class="container">
+    <div  class="container">
 
       <div v-if="cart.items.length>0" class="cart">
 
@@ -51,10 +51,187 @@
           </div>
 
         </div>
-        <p class=" text-h5 text-bold text-dark text-right">  Общая стоимость:{{cart.price}} ₽</p>
+
       </div>
     </div>
-    <div class="q-mb-lg">
+    <q-separator v-if="cart.items.length>0" class="q-mb-lg"/>
+    <div v-if="cart.items.length>0" class="container">
+      <p class=" text-h5 text-bold text-dark text-right q-mb-none">  Общая стоимость:{{cart.price}} ₽</p>
+      <p class=" text-body1 text-bold text-dark text-right q-mb-none">  Общий вес:{{total_weight}} кг</p>
+      <p class=" text-body1 text-bold text-dark text-right q-mb-none">  Общий объем:{{total_vol}} m<sup>3</sup></p>
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-md-6">
+          <p>Заказчик</p>
+          <q-form ref="personalForm" class="auth-form" @submit.prevent="calcDelivery">
+            <q-input
+              outlined
+              square
+              bg-color="grey-2"
+              :dense="!$q.screen.gt.md"
+              v-model="personalInfo.email"
+              label="Ваш E-Mail "
+              class="q-mb-md"
+
+            /><q-input
+            outlined
+            square
+            bg-color="grey-2"
+            :dense="!$q.screen.gt.md"
+            v-model="personalInfo.phone"
+            label="Ваш телефон *"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Это обязательное поле']"
+          />
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-md-6">
+                <q-input
+                  outlined
+                  square
+                  bg-color="grey-2"
+                  :dense="!$q.screen.gt.md"
+                  v-model="personalInfo.name"
+                  label="Ваше Имя *"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || 'Это обязательное поле']"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input
+                  outlined
+                  square
+                  bg-color="grey-2"
+                  :dense="!$q.screen.gt.md"
+                  v-model="personalInfo.email"
+                  label="Ваша Фамилия *"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || 'Это обязательное поле']"
+                />
+              </div>
+            </div>
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-md-6">
+                <q-select
+                  outlined
+                  square
+                  bg-color="grey-2"
+
+                  v-model="personalInfo.city"
+                  label="Город (начните вводить)*"
+                  use-input
+                  option-label="unrestrictedValue"
+                  :display-value="personalInfo.city ? personalInfo.city.locality : ''"
+                  :loading="city_loading"
+                  :dense="!$q.screen.gt.md"
+                  input-debounce="0"
+                  :options="cities"
+                  @filter="filterCities"
+                  lazy-rules
+                  :rules="[ val => val  || 'Это обязательное поле']"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input
+                  outlined
+                  square
+                  bg-color="grey-2"
+                  :dense="!$q.screen.gt.md"
+                  v-model="personalInfo.index"
+                  label="Индекс *"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || 'Это обязательное поле']"
+                />
+              </div>
+            </div>
+            <q-input
+              outlined
+              square
+              bg-color="grey-2"
+              :dense="!$q.screen.gt.md"
+              v-model="personalInfo.street"
+              label="Улица *"
+              lazy-rules
+              :rules="[ val => val && val.length > 0 || 'Это обязательное поле']"
+            />
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-md-6">
+                <q-input
+                  outlined
+                  square
+                  bg-color="grey-2"
+                  :dense="!$q.screen.gt.md"
+                  v-model="personalInfo.home"
+                  label="Номер дома *"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || 'Это обязательное поле']"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input
+                  outlined
+                  square
+                  bg-color="grey-2"
+                  :dense="!$q.screen.gt.md"
+                  v-model="personalInfo.kv"
+                  label="Номер квартиры"
+                />
+              </div>
+
+            </div>
+            <div class="text-right">
+              <q-btn color="primary"
+                     class="no-border-radius q-py-md q-px-md q-mb-lg"
+                     size="16px"  label="Расчет доставки" :loading="is_loading"
+                     type="submit"  unelevated no-caps text-color="white"/>
+            </div>
+
+          </q-form>
+
+        </div>
+        <div class="col-12 col-md-6">
+          <p>Доставка</p>
+
+          <p v-if="!personalInfo.city">Выберите город</p>
+
+          <q-select
+            v-if="companies_loaded"
+            outlined
+            square
+            bg-color="grey-2"
+            :options="deliveryTypeOptions"
+            :dense="!$q.screen.gt.md"
+            class="q-mb-md"
+            v-model="delivery_type"
+            label="Способ доставки*"
+          />
+
+          <q-list v-if="delivery_type">
+
+            <q-item tag="label" v-ripple v-for="(item,index) in avaiableCompanies[delivery_type.value]" :key="index">
+              <q-item-section avatar top>
+                <q-radio v-model="color" val="cyan" color="cyan" />
+              </q-item-section>
+              <q-item-section avatar >
+                <q-avatar>
+                  <img style="object-fit: contain" :src="item.deliveryCompanyLogo" alt="">
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-medium text-dark">{{item.deliveryCompanyName}}</q-item-label>
+                <q-item-label caption>
+                  Доставка от {{item.deliveryDays.min}} д - {{item.deliveryDays.max}} д<br>
+                  Стоимость доставки {{item.totalPrice}} руб <br>
+
+
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+
+        </div>
+      </div>
+    </div>
+    <div v-if="cart.items.length>0" class="q-mb-lg">
       <svg width="100%" height="105" viewBox="0 0 1920 105" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="1920" height="99" fill="#07737A"/>
         <path d="M595.784 55.096C594.675 55.096 593.672 54.8507 592.776 54.36C591.891 53.8693 591.192 53.192 590.68 52.328C590.179 51.4533 589.928 50.4773 589.928 49.4C589.928 48.3227 590.179 47.352 590.68 46.488C591.192 45.6133 591.896 44.9307 592.792 44.44C593.688 43.9493 594.691 43.704 595.8 43.704C596.632 43.704 597.4 43.8427 598.104 44.12C598.808 44.3973 599.405 44.8027 599.896 45.336L599.144 46.088C598.269 45.2027 597.165 44.76 595.832 44.76C594.947 44.76 594.141 44.9627 593.416 45.368C592.691 45.7733 592.12 46.328 591.704 47.032C591.299 47.736 591.096 48.5253 591.096 49.4C591.096 50.2747 591.299 51.064 591.704 51.768C592.12 52.472 592.691 53.0267 593.416 53.432C594.141 53.8373 594.947 54.04 595.832 54.04C597.176 54.04 598.28 53.592 599.144 52.696L599.896 53.448C599.405 53.9813 598.803 54.392 598.088 54.68C597.384 54.9573 596.616 55.096 595.784 55.096ZM609.621 46.584V55H608.485V47.592H603.205V55H602.069V46.584H609.621ZM616.322 55.08C615.512 55.08 614.781 54.8987 614.13 54.536C613.48 54.1627 612.968 53.6507 612.594 53C612.221 52.3493 612.034 51.6133 612.034 50.792C612.034 49.9707 612.221 49.2347 612.594 48.584C612.968 47.9333 613.48 47.4267 614.13 47.064C614.781 46.7013 615.512 46.52 616.322 46.52C617.133 46.52 617.864 46.7013 618.514 47.064C619.165 47.4267 619.672 47.9333 620.034 48.584C620.408 49.2347 620.594 49.9707 620.594 50.792C620.594 51.6133 620.408 52.3493 620.034 53C619.672 53.6507 619.165 54.1627 618.514 54.536C617.864 54.8987 617.133 55.08 616.322 55.08ZM616.322 54.072C616.92 54.072 617.453 53.9387 617.922 53.672C618.402 53.3947 618.776 53.0053 619.042 52.504C619.309 52.0027 619.442 51.432 619.442 50.792C619.442 50.152 619.309 49.5813 619.042 49.08C618.776 48.5787 618.402 48.1947 617.922 47.928C617.453 47.6507 616.92 47.512 616.322 47.512C615.725 47.512 615.186 47.6507 614.706 47.928C614.237 48.1947 613.864 48.5787 613.586 49.08C613.32 49.5813 613.186 50.152 613.186 50.792C613.186 51.432 613.32 52.0027 613.586 52.504C613.864 53.0053 614.237 53.3947 614.706 53.672C615.186 53.9387 615.725 54.072 616.322 54.072ZM626.542 55.08C625.71 55.08 624.964 54.8987 624.302 54.536C623.652 54.1733 623.14 53.6667 622.766 53.016C622.393 52.3547 622.206 51.6133 622.206 50.792C622.206 49.9707 622.393 49.2347 622.766 48.584C623.14 47.9333 623.652 47.4267 624.302 47.064C624.964 46.7013 625.71 46.52 626.542 46.52C627.268 46.52 627.913 46.664 628.478 46.952C629.054 47.2293 629.508 47.64 629.838 48.184L628.99 48.76C628.713 48.344 628.361 48.0347 627.934 47.832C627.508 47.6187 627.044 47.512 626.542 47.512C625.934 47.512 625.385 47.6507 624.894 47.928C624.414 48.1947 624.036 48.5787 623.758 49.08C623.492 49.5813 623.358 50.152 623.358 50.792C623.358 51.4427 623.492 52.0187 623.758 52.52C624.036 53.0107 624.414 53.3947 624.894 53.672C625.385 53.9387 625.934 54.072 626.542 54.072C627.044 54.072 627.508 53.9707 627.934 53.768C628.361 53.5653 628.713 53.256 628.99 52.84L629.838 53.416C629.508 53.96 629.054 54.376 628.478 54.664C627.902 54.9413 627.257 55.08 626.542 55.08ZM635.369 55.08C634.559 55.08 633.828 54.8987 633.177 54.536C632.527 54.1627 632.015 53.6507 631.641 53C631.268 52.3493 631.081 51.6133 631.081 50.792C631.081 49.9707 631.268 49.2347 631.641 48.584C632.015 47.9333 632.527 47.4267 633.177 47.064C633.828 46.7013 634.559 46.52 635.369 46.52C636.18 46.52 636.911 46.7013 637.561 47.064C638.212 47.4267 638.719 47.9333 639.081 48.584C639.455 49.2347 639.641 49.9707 639.641 50.792C639.641 51.6133 639.455 52.3493 639.081 53C638.719 53.6507 638.212 54.1627 637.561 54.536C636.911 54.8987 636.18 55.08 635.369 55.08ZM635.369 54.072C635.967 54.072 636.5 53.9387 636.969 53.672C637.449 53.3947 637.823 53.0053 638.089 52.504C638.356 52.0027 638.489 51.432 638.489 50.792C638.489 50.152 638.356 49.5813 638.089 49.08C637.823 48.5787 637.449 48.1947 636.969 47.928C636.5 47.6507 635.967 47.512 635.369 47.512C634.772 47.512 634.233 47.6507 633.753 47.928C633.284 48.1947 632.911 48.5787 632.633 49.08C632.367 49.5813 632.233 50.152 632.233 50.792C632.233 51.432 632.367 52.0027 632.633 52.504C632.911 53.0053 633.284 53.3947 633.753 53.672C634.233 53.9387 634.772 54.072 635.369 54.072ZM646.149 46.792C646.928 46.792 647.621 46.968 648.229 47.32C648.848 47.6613 649.328 48.1467 649.669 48.776C650.01 49.3947 650.181 50.104 650.181 50.904C650.181 51.7253 650 52.456 649.637 53.096C649.285 53.7253 648.789 54.216 648.149 54.568C647.509 54.92 646.773 55.096 645.941 55.096C644.544 55.096 643.461 54.6053 642.693 53.624C641.925 52.6427 641.541 51.288 641.541 49.56C641.541 47.7573 641.882 46.376 642.565 45.416C643.258 44.456 644.336 43.8053 645.797 43.464L649.573 42.6L649.765 43.64L646.213 44.456C645.008 44.7227 644.122 45.1973 643.557 45.88C642.992 46.552 642.682 47.5493 642.629 48.872C642.97 48.2213 643.445 47.7147 644.053 47.352C644.661 46.9787 645.36 46.792 646.149 46.792ZM645.973 54.152C646.56 54.152 647.082 54.0187 647.541 53.752C648.01 53.4747 648.373 53.0907 648.629 52.6C648.896 52.1093 649.029 51.5547 649.029 50.936C649.029 50.3173 648.901 49.7733 648.645 49.304C648.389 48.8347 648.026 48.472 647.557 48.216C647.098 47.9493 646.57 47.816 645.973 47.816C645.376 47.816 644.842 47.9493 644.373 48.216C643.914 48.472 643.552 48.8347 643.285 49.304C643.029 49.7733 642.901 50.3173 642.901 50.936C642.901 51.5547 643.029 52.1093 643.285 52.6C643.552 53.0907 643.92 53.4747 644.389 53.752C644.858 54.0187 645.386 54.152 645.973 54.152ZM656.152 49.56C657.208 49.5707 658.013 49.8053 658.568 50.264C659.123 50.7227 659.4 51.384 659.4 52.248C659.4 53.144 659.101 53.832 658.504 54.312C657.907 54.792 657.053 55.0267 655.944 55.016L652.616 55V46.584H653.752V49.528L656.152 49.56ZM660.808 46.584H661.944V55H660.808V46.584ZM655.88 54.152C656.659 54.1627 657.245 54.008 657.64 53.688C658.045 53.3573 658.248 52.8773 658.248 52.248C658.248 51.6293 658.051 51.1707 657.656 50.872C657.261 50.5733 656.669 50.4187 655.88 50.408L653.752 50.376V54.12L655.88 54.152ZM672.838 55.08C672.027 55.08 671.297 54.8987 670.646 54.536C669.995 54.1627 669.483 53.6507 669.11 53C668.737 52.3493 668.55 51.6133 668.55 50.792C668.55 49.9707 668.737 49.2347 669.11 48.584C669.483 47.9333 669.995 47.4267 670.646 47.064C671.297 46.7013 672.027 46.52 672.838 46.52C673.649 46.52 674.379 46.7013 675.03 47.064C675.681 47.4267 676.187 47.9333 676.55 48.584C676.923 49.2347 677.11 49.9707 677.11 50.792C677.11 51.6133 676.923 52.3493 676.55 53C676.187 53.6507 675.681 54.1627 675.03 54.536C674.379 54.8987 673.649 55.08 672.838 55.08ZM672.838 54.072C673.435 54.072 673.969 53.9387 674.438 53.672C674.918 53.3947 675.291 53.0053 675.558 52.504C675.825 52.0027 675.958 51.432 675.958 50.792C675.958 50.152 675.825 49.5813 675.558 49.08C675.291 48.5787 674.918 48.1947 674.438 47.928C673.969 47.6507 673.435 47.512 672.838 47.512C672.241 47.512 671.702 47.6507 671.222 47.928C670.753 48.1947 670.379 48.5787 670.102 49.08C669.835 49.5813 669.702 50.152 669.702 50.792C669.702 51.432 669.835 52.0027 670.102 52.504C670.379 53.0053 670.753 53.3947 671.222 53.672C671.702 53.9387 672.241 54.072 672.838 54.072ZM687.09 46.584V55H685.954V47.592H680.674V55H679.538V46.584H687.09ZM697.199 46.584V55H696.063V47.592H692.031L691.919 49.672C691.834 51.4213 691.631 52.7653 691.311 53.704C690.991 54.6427 690.42 55.112 689.599 55.112C689.375 55.112 689.103 55.0693 688.783 54.984L688.863 54.008C689.055 54.0507 689.188 54.072 689.263 54.072C689.7 54.072 690.031 53.8693 690.255 53.464C690.479 53.0587 690.628 52.5573 690.703 51.96C690.778 51.3627 690.842 50.5733 690.895 49.592L691.039 46.584H697.199ZM703.325 46.52C704.423 46.52 705.266 46.7973 705.853 47.352C706.439 47.896 706.733 48.7067 706.733 49.784V55H705.645V53.688C705.389 54.1253 705.01 54.4667 704.509 54.712C704.018 54.9573 703.431 55.08 702.749 55.08C701.81 55.08 701.063 54.856 700.509 54.408C699.954 53.96 699.677 53.368 699.677 52.632C699.677 51.9173 699.933 51.3413 700.445 50.904C700.967 50.4667 701.794 50.248 702.924 50.248H705.597V49.736C705.597 49.0107 705.394 48.4613 704.989 48.088C704.583 47.704 703.991 47.512 703.213 47.512C702.679 47.512 702.167 47.6027 701.677 47.784C701.186 47.9547 700.765 48.1947 700.413 48.504L699.901 47.656C700.327 47.2933 700.839 47.016 701.437 46.824C702.034 46.6213 702.663 46.52 703.325 46.52ZM702.924 54.184C703.565 54.184 704.114 54.04 704.573 53.752C705.031 53.4533 705.373 53.0267 705.597 52.472V51.096H702.957C701.517 51.096 700.797 51.5973 700.797 52.6C700.797 53.0907 700.983 53.48 701.357 53.768C701.73 54.0453 702.253 54.184 702.924 54.184ZM715.677 47.592H712.493V55H711.357V47.592H708.173V46.584H715.677V47.592ZM720.855 49.56C721.911 49.5707 722.716 49.8053 723.271 50.264C723.826 50.7227 724.103 51.384 724.103 52.248C724.103 53.144 723.804 53.832 723.207 54.312C722.61 54.792 721.756 55.0267 720.647 55.016L717.319 55V46.584H718.455V49.528L720.855 49.56ZM725.511 46.584H726.647V55H725.511V46.584ZM720.583 54.152C721.362 54.1627 721.948 54.008 722.343 53.688C722.748 53.3573 722.951 52.8773 722.951 52.248C722.951 51.6293 722.754 51.1707 722.359 50.872C721.964 50.5733 721.372 50.4187 720.583 50.408L718.455 50.376V54.12L720.583 54.152Z" fill="white"/>
@@ -124,20 +301,12 @@
       </svg>
     </div>
 
-      <div class="container">
-        <div class="flex items-center justify-between">
-          <q-btn color="primary" class="no-border-radius q-py-md q-px-md q-mb-lg"  size="16px"  @click="$router.push('/catalog')" outline  unelevated no-caps text-color="primary" label="Вернуться в каталог"/>
-          <q-btn color="primary" class="no-border-radius q-py-md q-px-md q-mb-lg"  size="16px"  @click="$router.push('/checkout')"  unelevated no-caps text-color="white" label="Выбор доставки и оплата"/>
-
-        </div>
+    <div v-if="cart.items.length>0" class="container">
+      <div class="flex items-center justify-between">
+        <q-btn color="primary" class="no-border-radius q-py-md q-px-md q-mb-lg"  size="16px"  @click="$router.push('/catalog')" outline  unelevated no-caps text-color="primary" label="Вернуться в каталог"/>
+        <q-btn color="primary" class="no-border-radius q-py-md q-px-md q-mb-lg"  size="16px"  @click="createOrder"  unelevated no-caps text-color="white" label="Оформить заказ"/>
       </div>
-
-
-
-
-
-
-
+    </div>
   </q-page>
 </template>
 <script>
@@ -146,19 +315,192 @@ import {mapActions, mapGetters} from "vuex";
 export default {
   data() {
     return {
+      deliveryTypeOptions:[
+        {value:1,label:'Доставка в пункты выдачи'},
+        {value:2,label:'Доставка курьером'},
+        {value:3,label:'Доставка Почтой России'},
+      ],
       loading:false,
       agree:false,
       agree1:false,
+      city_loading:false,
+      is_loading:false,
       delivery:'courier',
-      address:null
+      delivery_type:null,
+      address:null,
+      companies:[],
+      is_valid:false,
+      points:[],
+      cities:[{
+        name:'132'
+      }],
+      companyLoading:false,
+      companies_loaded:false,
+      selectedCompany:null,
+      selectedPoint:null,
+      allCompanies:[],
+      avaiableCompanies:[],
+      personalInfo:{
+        email:null,
+        phone:null,
+        name:null,
+        lastName:null,
+        city:null,
+        street:null,
+        home:null,
+        index:null,
+        kv:null
+      },
+      headers : {
+        'Authorization' :  `Bearer ${process.env.API_KEY}`
+      },
+      headers_post : {
+        'Authorization' :  `Bearer ${process.env.API_KEY}`,
+        'Shop-Id': 78331,
+        'Content-Type': 'application/json'
+      }
 
     }
+  },
+  async mounted() {
+    this.companyLoading = !this.companyLoading
+    const response = await this.$axios.get('https://api.saferoute.ru/v2/lists/delivery-companies',{
+      headers:this.headers
+    })
+    console.log(response.data)
+    this.allCompanies = response.data
+    this.companyLoading = !this.companyLoading
+  },
+  watch:{
+    async 'personalInfo.city'(val){
+      console.log(val)
+      this.avaiableCompanies = []
+      val.postalCode ? this.personalInfo.index = val.postalCode : null
+      // const response = await this.$axios.post('https://api.saferoute.ru/v2/calculator/company',
+      //   {'reception.cityName': this.personalInfo.city.locality},{
+      //     headers:this.headers_post,
+      //   })
+      // console.log(response.data)
+      // for (let x of this.allCompanies){
+      //   if (response.data['1'].includes(x.id)){
+      //     this.avaiableCompanies.push(x)
+      //   }
+      // }
+      // console.log(this.avaiableCompanies)
+
+    },
+    async selectedCompany(val){
+      console.log(val)
+      if(val){
+        await this.getPoints()
+      }
+    },
+    // async selectedPoint(val){
+    //   console.log(val)
+    //   if(val){
+    //     const data = {
+    //       type:1,
+    //       'reception.cityFias':this.personalInfo.city.fias,
+    //       'reception.cityName':this.personalInfo.city.locality,
+    //       'reception.street':'Панагюриште',
+    //       'reception.house':'2',
+    //       companyIds:[this.selectedCompany.id],
+    //       // products:[
+    //       //   {
+    //       //     'vendorCode':123,
+    //       //     'dimensions.width':10,
+    //       //     'dimensions.height':10,
+    //       //     'dimensions.length':10,
+    //       //     'weight':0.1,
+    //       //     'count':1
+    //       //   }
+    //       // ]
+    //       places:[
+    //         {
+    //           'dimensions.width':10,
+    //           'dimensions.height':10,
+    //           'dimensions.length':10,
+    //           'weight':1,
+    //           'itemCount':1,
+    //
+    //         }
+    //       ]
+    //     }
+    //     const response = await this.$axios.post('https://api.saferoute.ru/v2/calculator',
+    //       data,{
+    //         headers:this.headers_post,
+    //       })
+    //     console.log(response.data)
+    //   }
+    // }
   },
 
   methods:{
 
     ... mapActions('auth',['getUser']),
     ... mapActions('data',['fetchOrders','fetchCart']),
+    async calcDelivery(){
+      this.is_loading = !this.is_loading
+      const data = {
+        reception:{
+          'cityFias':this.personalInfo.city.fias,
+          'cityName':this.personalInfo.city.locality,
+          'street':this.personalInfo.street,
+          'house':this.personalInfo.home,
+          'zipCode':this.personalInfo.index,
+          'region':this.personalInfo.regionWithType,
+        },
+
+
+        'dimensions.width':10,
+        'dimensions.height':10,
+        'dimensions.length':10,
+        'weight':1,
+        'itemCount':1,
+        'volume':0.01,
+      }
+      const response = await this.$axios.post('https://api.saferoute.ru/v2/calculator',
+        data,{
+          headers:this.headers_post,
+        })
+      console.log(response.data)
+      this.avaiableCompanies = response.data
+      this.is_loading = !this.is_loading
+      this.companies_loaded = true
+    },
+    filterCities(val, update){
+      if (val === '') {
+        update(() => {
+          this.cities = []
+        })
+        return
+      }
+      if (val.length<2){
+        return
+      }
+
+      update( async () => {
+        this.city_loading = !this.city_loading
+        const needle = val.toLowerCase()
+        const result = await this.$axios.get(`https://api.saferoute.ru/v2/cities?name=${needle}&lang=ru&toBound=flat`, {
+          headers: this.headers
+        })
+        console.log(result.data)
+        this.cities = result.data
+        this.city_loading = !this.city_loading
+      })
+    },
+    async getPoints(){
+      this.companyLoading = !this.companyLoading
+      const response = await this.$axios.get(`https://api.saferoute.ru/v2/lists/points?
+      companyId=${this.selectedCompany.id}&
+      cityFias=${this.personalInfo.city.fias}`,{
+        headers:this.headers
+      })
+      this.points = response.data
+      console.log(this.points)
+      this.companyLoading = !this.companyLoading
+    },
     async deleteItem(id){
       await this.$api.post('/api/cart/delete_item',{id,session_id:this.$q.cookies.get('session_id')})
       await this.fetchCart()
@@ -169,6 +511,8 @@ export default {
     },
 
     async createOrder(){
+      console.log(await this.$refs.personalForm.validate())
+      return
 
       this.loading = !this.loading
       const result = await this.$api.post('/api/order/create',{delivery:this.delivery,address:this.address,session_id:this.$cookies.get('session_id')})
@@ -199,7 +543,26 @@ export default {
     }
   },
   computed:{
-    ...mapGetters('data',['cart'])
+    ...mapGetters('data',['cart']),
+    total_weight(){
+      let temp = 0
+
+      for (let i of this.cart.items){
+        console.log(i)
+        temp += parseFloat(i.volume.weight) * i.amount
+      }
+      return temp
+    },
+    total_vol(){
+      let temp = 0
+
+      for (let i of this.cart.items){
+        console.log((i.volume.width *i.volume.height * i.volume.length / 1000000) * i.amount  )
+        temp += (i.volume.width * i.volume.height * i.volume.length / 1000000) * i.amount
+      }
+      return parseFloat(temp).toFixed(3)
+    }
+
   }
 }
 </script>

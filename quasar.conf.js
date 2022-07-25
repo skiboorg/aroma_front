@@ -48,6 +48,7 @@ module.exports = configure(function (ctx) {
       vueRouterMode: 'history', // available values: 'hash', 'history'
       env: {
          API: 'http://localhost:8000',
+         API_KEY: 'BB1d6AVb1GpJlRDZ-vwl1l_6ExRW9KVJ',
         //API: 'https://9b6cfca3169942.localhost.run/',
 
 

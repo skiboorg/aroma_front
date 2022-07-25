@@ -15,13 +15,13 @@ const mutations = {
   updateUserStatus(state,data){
     state.loggedIn = data
   },
-  updateSocket(state,data){
-      state.socket = data
-    },
+
 
 }
 
 const actions = {
+
+
 
   loginUser({dispatch},data){
     api.post('/auth/token/login/',data)

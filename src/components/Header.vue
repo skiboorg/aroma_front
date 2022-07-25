@@ -1,72 +1,107 @@
 <template>
-  <q-header class="bg-white header">
-      <div class="container header-wrapper">
-        <q-btn class="lt-md" @click="leftDrawerOpen=!leftDrawerOpen" round unelevated icon="menu" text-color="dark"/>
- <div class="header-logo cursor-pointer flex" @click="$router.push({name:'index'})">
-            <img class="img"  src="~assets/logo.svg" alt="">
-        </div>
-        <div class="gt-sm nav">
-<!--          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'about'}">О нас</router-link>-->
-<!--          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'profit'}">Доход</router-link>-->
-          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'gallery'}">Галерея</router-link>
-          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'contacts'}">Контакты</router-link>
-        </div>
-
-
-        <div class="header-buttons flex items-center ">
-          <div class="gt-sm q-gutter-md">
-
-            <q-btn v-if="!$auth.loggedIn" class="q-px-lg" :to="{name:'login'}" outline rounded unelevated no-caps text-color="dark" label="Вход"/>
-            <q-btn v-if="!$auth.loggedIn" class="q-px-lg" :to="{name:'register'}" outline rounded unelevated no-caps text-color="dark" label="Регистрация"/>
-            <q-btn v-if="$auth.loggedIn" :to="{name:'cart'}"  round unelevated outline no-caps text-color="dark" icon="shopping_basket">
-              <q-badge rounded v-if="cart.items.length>0" color="red" floating>{{cart.items.length}}</q-badge>
-            </q-btn>
-            <q-btn v-if="$auth.loggedIn" round unelevated @mouseenter="userMenu=!userMenu" color="dark" icon="person_outline"/>
-          </div>
-          <div class="lt-md q-gutter-md">
-
-            <q-btn v-if="!$auth.loggedIn"  :to="{name:'login'}"  round dense unelevated no-caps text-color="dark" icon="login"/>
-            <q-btn v-if="!$auth.loggedIn"  :to="{name:'register'}"  round dense unelevated no-caps text-color="dark" icon="person_add"/>
-            <q-btn v-if="$auth.loggedIn" :to="{name:'cart'}"  round unelevated dense outline no-caps text-color="dark" icon="shopping_basket">
-              <q-badge rounded v-if="cart.items.length>0" color="red" floating>{{cart.items.length}}</q-badge>
-            </q-btn>
-            <q-btn v-if="$auth.loggedIn" round unelevated dense @mouseenter="userMenu=!userMenu" @click="userMenu=!userMenu" color="dark" icon="person_outline"/>
-          </div>
-
-
-        </div>
-        <div class="header-mobile" @mouseleave="userMenu=!userMenu" :class="{active:userMenu}">
-          <UserMenu />
-        </div>
+  <q-header class="bg-white header q-py-md q-px-md q-px-md-xl">
+    <div class="header-wrapper flex items-center justify-between">
+      <q-btn v-if="!leftDrawerOpen" @click="leftDrawerOpen=!leftDrawerOpen" round unelevated icon="menu" text-color="dark"/>
+      <q-btn v-else @click="leftDrawerOpen=!leftDrawerOpen" round unelevated icon="close" text-color="dark"/>
+<!--      <div class="gt-sm q-mr-xl"></div>-->
+      <div class="header-logo cursor-pointer " @click="$router.push({name:'index'})">
+        <img class="img gt-sm"  src="~assets/logo.svg" alt="">
+        <img class="img lt-md"  src="~assets/logo-sm.svg" alt="">
       </div>
-
-    </q-header>
-
-        <q-drawer
-          v-model="leftDrawerOpen"
-
-          bordered
-          class="q-px-sm"
-        >
-          <div class="q-pt-lg q-mb-xl">
-             <q-btn @click="leftDrawerOpen=!leftDrawerOpen" round unelevated icon="close" text-color="dark"/>
-          </div>
-          <div class="q-mb-md">
-            <q-btn class="q-px-lg" :to="{name:'login'}" outline rounded unelevated no-caps text-color="dark" label="Вход"/>
-          </div>
-           <div class="q-mb-xl">
-             <q-btn class="q-px-lg" :to="{name:'register'}" color="dark" rounded unelevated no-caps text-color="white" label="Регистрация"/>
-           </div>
-          <div class="flex column items-start">
-<!--            <router-link exact exact-active-class="active" class="nav-link " :to="{name:'about'}">О нас</router-link>-->
-<!--          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'profit'}">Доход</router-link>-->
-          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'gallery'}">Галерея</router-link>
-          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'contacts'}">Контакты</router-link>
-          </div>
+      <!--        <div class="gt-sm nav">-->
+      <!--          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'about'}">О нас</router-link>-->
+      <!--&lt;!&ndash;          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'profit'}">Доход</router-link>&ndash;&gt;-->
+      <!--          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'gallery'}">Каталог</router-link>-->
+      <!--          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'contacts'}">Контакты</router-link>-->
+      <!--        </div>-->
 
 
+      <div class="header-buttons flex items-center ">
+        <div class="gt-sm q-gutter-md">
+          <q-btn flat   round unelevated outline no-caps text-color="dark" >
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24.7633 22.2942L18.3086 16.339C19.9989 14.6172 21.0374 12.34 21.0374 9.83423C21.0366 4.47392 16.3276 0.12915 10.5183 0.12915C4.70901 0.12915 0 4.47392 0 9.83423C0 15.1945 4.70901 19.5393 10.5183 19.5393C13.0283 19.5393 15.3305 18.7253 17.1388 17.372L23.6185 23.3507C23.9342 23.6423 24.4468 23.6423 24.7626 23.3507C25.079 23.0591 25.079 22.5858 24.7633 22.2942ZM10.5183 18.0461C5.603 18.0461 1.61839 14.3695 1.61839 9.83423C1.61839 5.29891 5.603 1.62233 10.5183 1.62233C15.4336 1.62233 19.4182 5.29891 19.4182 9.83423C19.4182 14.3695 15.4336 18.0461 10.5183 18.0461Z" fill="#333333"/>
+            </svg>
 
-        </q-drawer>
+          </q-btn>
+
+<!--          <q-btn v-if="$auth.loggedIn" flat :to="{name:'lk-index'}"  round unelevated outline no-caps text-color="dark" >-->
+<!--            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--              <g clip-path="url(#clip0_17_852)">-->
+<!--                <path d="M12.3218 11.4202C13.9762 11.4202 15.4086 10.8639 16.5794 9.76619C17.7497 8.6687 18.3433 7.32586 18.3433 5.7745C18.3433 4.22367 17.7499 2.88065 16.5792 1.7828C15.4085 0.685494 13.976 0.12915 12.3218 0.12915C10.6672 0.12915 9.23494 0.685494 8.0644 1.78298C6.89386 2.88047 6.30029 4.22349 6.30029 5.7745C6.30029 7.32586 6.89386 8.66888 8.0644 9.76637C9.23532 10.8637 10.6677 11.4202 12.3218 11.4202ZM9.10047 2.75421C9.99864 1.9121 11.0523 1.50275 12.3218 1.50275C13.5911 1.50275 14.6449 1.9121 15.5433 2.75421C16.4415 3.59651 16.8783 4.58455 16.8783 5.7745C16.8783 6.9648 16.4415 7.95266 15.5433 8.79496C14.6449 9.63725 13.5911 10.0466 12.3218 10.0466C11.0526 10.0466 9.99902 9.63707 9.10047 8.79496C8.20211 7.95284 7.76533 6.9648 7.76533 5.7745C7.76533 4.58455 8.20211 3.59651 9.10047 2.75421Z" fill="#363636"/>-->
+<!--                <path d="M22.8579 18.1531C22.8241 17.6964 22.7558 17.1982 22.6553 16.672C22.5538 16.142 22.4232 15.6409 22.2668 15.1829C22.105 14.7095 21.8855 14.2421 21.6137 13.7941C21.332 13.3291 21.0009 12.9243 20.6293 12.5911C20.2408 12.2426 19.7651 11.9623 19.215 11.7579C18.6668 11.5546 18.0593 11.4516 17.4095 11.4516C17.1543 11.4516 16.9075 11.5498 16.4309 11.8407C16.1375 12.0201 15.7944 12.2275 15.4114 12.457C15.0839 12.6526 14.6402 12.8359 14.0923 13.0019C13.5576 13.1641 13.0148 13.2463 12.4788 13.2463C11.9432 13.2463 11.4004 13.1641 10.8654 13.0019C10.318 12.8361 9.87415 12.6528 9.54723 12.4572C9.16786 12.2299 8.82454 12.0224 8.5268 11.8406C8.05054 11.5496 7.80373 11.4514 7.54852 11.4514C6.8985 11.4514 6.2912 11.5546 5.74322 11.7581C5.19352 11.9622 4.71764 12.2424 4.32873 12.5913C3.95718 12.9246 3.62606 13.3293 3.34454 13.7941C3.07312 14.2421 2.85339 14.7094 2.69165 15.1831C2.53544 15.6411 2.40479 16.142 2.30331 16.672C2.20261 17.1974 2.13451 17.6958 2.10075 18.1537C2.06757 18.6013 2.05078 19.0671 2.05078 19.5378C2.05078 20.7614 2.46563 21.7519 3.28369 22.4824C4.09164 23.2033 5.16052 23.5688 6.46076 23.5688H18.4984C19.7983 23.5688 20.8672 23.2033 21.6753 22.4824C22.4936 21.7525 22.9084 20.7615 22.9084 19.5376C22.9082 19.0653 22.8912 18.5995 22.8579 18.1531ZM20.6652 21.4872C20.1313 21.9637 19.4225 22.1952 18.4982 22.1952H6.46076C5.53627 22.1952 4.8275 21.9637 4.29382 21.4874C3.77026 21.0201 3.51582 20.3822 3.51582 19.5378C3.51582 19.0986 3.53127 18.6649 3.56216 18.2486C3.5923 17.8402 3.65391 17.3915 3.74527 16.9147C3.83549 16.4438 3.95031 16.002 4.08688 15.6019C4.21791 15.2183 4.39663 14.8385 4.61826 14.4726C4.82979 14.1239 5.07317 13.8247 5.34172 13.5836C5.59292 13.3581 5.90954 13.1736 6.28262 13.0351C6.62766 12.9071 7.01542 12.837 7.43637 12.8264C7.48768 12.852 7.57904 12.9008 7.72705 12.9913C8.02822 13.1753 8.37536 13.3853 8.75912 13.6151C9.1917 13.8737 9.74903 14.1072 10.4149 14.3088C11.0956 14.5152 11.7899 14.6199 12.479 14.6199C13.1681 14.6199 13.8626 14.5152 14.543 14.309C15.2094 14.1071 15.7665 13.8737 16.1997 13.6147C16.5924 13.3794 16.9298 13.1755 17.231 12.9913C17.379 12.901 17.4704 12.852 17.5217 12.8264C17.9428 12.837 18.3306 12.9071 18.6758 13.0351C19.0487 13.1736 19.3653 13.3583 19.6165 13.5836C19.8851 13.8245 20.1284 14.1237 20.34 14.4728C20.5618 14.8385 20.7407 15.2185 20.8715 15.6017C21.0083 16.0023 21.1233 16.444 21.2133 16.9145C21.3045 17.3922 21.3663 17.8411 21.3964 18.2488V18.2491C21.4275 18.6639 21.4432 19.0973 21.4434 19.5378C21.4432 20.3824 21.1887 21.0201 20.6652 21.4872Z" fill="#363636"/>-->
+<!--              </g>-->
+<!--            </svg>-->
+<!--          </q-btn>-->
+<!--          <q-btn v-else flat :to="{name:'auth'}"  round unelevated outline no-caps text-color="dark" >-->
+<!--            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--              <g clip-path="url(#clip0_17_852)">-->
+<!--                <path d="M12.3218 11.4202C13.9762 11.4202 15.4086 10.8639 16.5794 9.76619C17.7497 8.6687 18.3433 7.32586 18.3433 5.7745C18.3433 4.22367 17.7499 2.88065 16.5792 1.7828C15.4085 0.685494 13.976 0.12915 12.3218 0.12915C10.6672 0.12915 9.23494 0.685494 8.0644 1.78298C6.89386 2.88047 6.30029 4.22349 6.30029 5.7745C6.30029 7.32586 6.89386 8.66888 8.0644 9.76637C9.23532 10.8637 10.6677 11.4202 12.3218 11.4202ZM9.10047 2.75421C9.99864 1.9121 11.0523 1.50275 12.3218 1.50275C13.5911 1.50275 14.6449 1.9121 15.5433 2.75421C16.4415 3.59651 16.8783 4.58455 16.8783 5.7745C16.8783 6.9648 16.4415 7.95266 15.5433 8.79496C14.6449 9.63725 13.5911 10.0466 12.3218 10.0466C11.0526 10.0466 9.99902 9.63707 9.10047 8.79496C8.20211 7.95284 7.76533 6.9648 7.76533 5.7745C7.76533 4.58455 8.20211 3.59651 9.10047 2.75421Z" fill="#363636"/>-->
+<!--                <path d="M22.8579 18.1531C22.8241 17.6964 22.7558 17.1982 22.6553 16.672C22.5538 16.142 22.4232 15.6409 22.2668 15.1829C22.105 14.7095 21.8855 14.2421 21.6137 13.7941C21.332 13.3291 21.0009 12.9243 20.6293 12.5911C20.2408 12.2426 19.7651 11.9623 19.215 11.7579C18.6668 11.5546 18.0593 11.4516 17.4095 11.4516C17.1543 11.4516 16.9075 11.5498 16.4309 11.8407C16.1375 12.0201 15.7944 12.2275 15.4114 12.457C15.0839 12.6526 14.6402 12.8359 14.0923 13.0019C13.5576 13.1641 13.0148 13.2463 12.4788 13.2463C11.9432 13.2463 11.4004 13.1641 10.8654 13.0019C10.318 12.8361 9.87415 12.6528 9.54723 12.4572C9.16786 12.2299 8.82454 12.0224 8.5268 11.8406C8.05054 11.5496 7.80373 11.4514 7.54852 11.4514C6.8985 11.4514 6.2912 11.5546 5.74322 11.7581C5.19352 11.9622 4.71764 12.2424 4.32873 12.5913C3.95718 12.9246 3.62606 13.3293 3.34454 13.7941C3.07312 14.2421 2.85339 14.7094 2.69165 15.1831C2.53544 15.6411 2.40479 16.142 2.30331 16.672C2.20261 17.1974 2.13451 17.6958 2.10075 18.1537C2.06757 18.6013 2.05078 19.0671 2.05078 19.5378C2.05078 20.7614 2.46563 21.7519 3.28369 22.4824C4.09164 23.2033 5.16052 23.5688 6.46076 23.5688H18.4984C19.7983 23.5688 20.8672 23.2033 21.6753 22.4824C22.4936 21.7525 22.9084 20.7615 22.9084 19.5376C22.9082 19.0653 22.8912 18.5995 22.8579 18.1531ZM20.6652 21.4872C20.1313 21.9637 19.4225 22.1952 18.4982 22.1952H6.46076C5.53627 22.1952 4.8275 21.9637 4.29382 21.4874C3.77026 21.0201 3.51582 20.3822 3.51582 19.5378C3.51582 19.0986 3.53127 18.6649 3.56216 18.2486C3.5923 17.8402 3.65391 17.3915 3.74527 16.9147C3.83549 16.4438 3.95031 16.002 4.08688 15.6019C4.21791 15.2183 4.39663 14.8385 4.61826 14.4726C4.82979 14.1239 5.07317 13.8247 5.34172 13.5836C5.59292 13.3581 5.90954 13.1736 6.28262 13.0351C6.62766 12.9071 7.01542 12.837 7.43637 12.8264C7.48768 12.852 7.57904 12.9008 7.72705 12.9913C8.02822 13.1753 8.37536 13.3853 8.75912 13.6151C9.1917 13.8737 9.74903 14.1072 10.4149 14.3088C11.0956 14.5152 11.7899 14.6199 12.479 14.6199C13.1681 14.6199 13.8626 14.5152 14.543 14.309C15.2094 14.1071 15.7665 13.8737 16.1997 13.6147C16.5924 13.3794 16.9298 13.1755 17.231 12.9913C17.379 12.901 17.4704 12.852 17.5217 12.8264C17.9428 12.837 18.3306 12.9071 18.6758 13.0351C19.0487 13.1736 19.3653 13.3583 19.6165 13.5836C19.8851 13.8245 20.1284 14.1237 20.34 14.4728C20.5618 14.8385 20.7407 15.2185 20.8715 15.6017C21.0083 16.0023 21.1233 16.444 21.2133 16.9145C21.3045 17.3922 21.3663 17.8411 21.3964 18.2488V18.2491C21.4275 18.6639 21.4432 19.0973 21.4434 19.5378C21.4432 20.3824 21.1887 21.0201 20.6652 21.4872Z" fill="#363636"/>-->
+<!--              </g>-->
+<!--            </svg>-->
+<!--          </q-btn>-->
+          <q-btn  flat :to="{name:'cart'}"  round unelevated outline no-caps text-color="dark" >
+                          <q-badge rounded v-if="cart.items.length>0" color="red" floating>{{cart.items.length}}</q-badge>
+            <svg width="21" height="24" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.5 20.3909L19.0685 5.27728C19.0378 4.94174 18.7362 4.68769 18.3834 4.68769H15.4386C15.3977 2.16635 13.1994 0.12915 10.5 0.12915C7.8006 0.12915 5.60223 2.16635 5.56133 4.68769H2.61655C2.25868 4.68769 1.96215 4.94174 1.93148 5.27728L0.499986 20.3909C0.499986 20.4101 0.494873 20.4293 0.494873 20.4484C0.494873 22.1693 2.17688 23.569 4.24743 23.569H16.7525C18.8231 23.569 20.5051 22.1693 20.5051 20.4484C20.5051 20.4293 20.5051 20.4101 20.5 20.3909ZM10.5 1.42337C12.4376 1.42337 14.0174 2.88057 14.0583 4.68769H6.9417C6.9826 2.88057 8.56236 1.42337 10.5 1.42337ZM16.7525 22.2747H4.24743C2.94886 22.2747 1.89569 21.4694 1.87524 20.4772L3.24538 5.98671H5.55622V7.95201C5.55622 8.31152 5.86297 8.59912 6.24641 8.59912C6.62984 8.59912 6.93659 8.31152 6.93659 7.95201V5.98671H14.0583V7.95201C14.0583 8.31152 14.365 8.59912 14.7485 8.59912C15.1319 8.59912 15.4386 8.31152 15.4386 7.95201V5.98671H17.7495L19.1247 20.4772C19.1043 21.4694 18.046 22.2747 16.7525 22.2747Z" fill="#333333"/>
+            </svg>
+          </q-btn>
+        </div>
+        <div class="lt-md q-gutter-md">
+
+
+         <q-btn  flat :to="{name:'cart'}"  round unelevated outline no-caps text-color="dark" >
+                          <q-badge rounded v-if="cart.items.length>0" color="red" floating>{{cart.items.length}}</q-badge>
+            <svg width="21" height="24" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.5 20.3909L19.0685 5.27728C19.0378 4.94174 18.7362 4.68769 18.3834 4.68769H15.4386C15.3977 2.16635 13.1994 0.12915 10.5 0.12915C7.8006 0.12915 5.60223 2.16635 5.56133 4.68769H2.61655C2.25868 4.68769 1.96215 4.94174 1.93148 5.27728L0.499986 20.3909C0.499986 20.4101 0.494873 20.4293 0.494873 20.4484C0.494873 22.1693 2.17688 23.569 4.24743 23.569H16.7525C18.8231 23.569 20.5051 22.1693 20.5051 20.4484C20.5051 20.4293 20.5051 20.4101 20.5 20.3909ZM10.5 1.42337C12.4376 1.42337 14.0174 2.88057 14.0583 4.68769H6.9417C6.9826 2.88057 8.56236 1.42337 10.5 1.42337ZM16.7525 22.2747H4.24743C2.94886 22.2747 1.89569 21.4694 1.87524 20.4772L3.24538 5.98671H5.55622V7.95201C5.55622 8.31152 5.86297 8.59912 6.24641 8.59912C6.62984 8.59912 6.93659 8.31152 6.93659 7.95201V5.98671H14.0583V7.95201C14.0583 8.31152 14.365 8.59912 14.7485 8.59912C15.1319 8.59912 15.4386 8.31152 15.4386 7.95201V5.98671H17.7495L19.1247 20.4772C19.1043 21.4694 18.046 22.2747 16.7525 22.2747Z" fill="#333333"/>
+            </svg>
+          </q-btn>
+
+        </div>
+
+
+      </div>
+      <div class="header-mobile" @mouseleave="userMenu=!userMenu" :class="{active:userMenu}">
+        <UserMenu />
+      </div>
+    </div>
+
+  </q-header>
+
+  <q-drawer
+    v-model="leftDrawerOpen"
+    :persistent="false"
+
+    bordered
+    class="q-px-sm"
+  >
+    <div class="q-pt-lg q-mb-xl">
+      <q-btn class="lt-sm" @click="leftDrawerOpen=!leftDrawerOpen" round unelevated icon="close" text-color="dark"/>
+    </div>
+
+    <div class="flex column items-start q-px-md">
+
+      <!--          <router-link exact exact-active-class="active" class="nav-link" :to="{name:'profit'}">Доход</router-link>-->
+<!--      <router-link exact exact-active-class="active" class="nav-link" :to="{name:'gallery'}">Каталог</router-link>-->
+
+       <router-link  :to="{name:'catalog'}" exact exact-active-class="active" class="nav-link ">Каталог</router-link>
+<!--       <router-link  v-if="$auth.loggedIn" :to="{name:'lk-index'}" exact exact-active-class="active" class="nav-link ">Личный кабинет</router-link>-->
+<!--       <router-link  v-else :to="{name:'auth'}" exact exact-active-class="active" class="nav-link ">Регистрация</router-link>-->
+      <router-link   :to="{name:'cart'}" exact exact-active-class="active" class="nav-link ">Корзина</router-link>
+      <router-link  :to="{name:'blog'}" exact exact-active-class="active" class="nav-link ">Наш блог</router-link>
+      <router-link  :to="{name:'payment'}" exact exact-active-class="active" class="nav-link ">Условия оплаты</router-link>
+      <router-link  :to="{name:'delivery'}" exact exact-active-class="active" class="nav-link ">Условия доставки</router-link>
+      <router-link  :to="{name:'return'}" exact exact-active-class="active" class="nav-link ">Условия возврата</router-link>
+      <router-link  :to="{name:'contacts'}" exact exact-active-class="active" class="nav-link ">Контакты</router-link>
+
+
+
+    </div>
+
+
+
+  </q-drawer>
 </template>
 <script>
 import UserMenu from "components/UserMenu";
@@ -80,19 +115,23 @@ export default {
       userMenu:false,
     }
   },
-   watch:{
+  watch:{
     '$route.path'(val){
-      this.userMenu = false
+
+      this.leftDrawerOpen = false
     }
-   },
+  },
   computed:{
     ...mapGetters('data',['cart'])
-  }
+  },
+
+
+
+
 }
 </script>
 <style lang="sass" scoped>
 .header
-  border-bottom: 1px solid #E5E5E5
 
   &-wrapper
     position: relative
@@ -116,7 +155,7 @@ export default {
       pointer-events: all
       top: 97px
   &-logo
-    width: 60px
+    width: 270px
 .nav
   display: grid
   grid-template-columns: repeat(4, 1fr)
@@ -125,9 +164,10 @@ export default {
     position: relative
     text-decoration: none
     color: #515151
-    font-family: 'Avenir Next Cyr 400', sans-serif
-    font-size: 14px
+    font-size: 16px
+    font-weight: 500
     text-align: center
+    margin-bottom: 10px
     &::after
       position: absolute
       content: ''
@@ -163,7 +203,8 @@ export default {
 @media (max-width: 1024px)
   .header-wrapper
     padding: 10px 10px
-
+  .header-logo
+      width: unset
   .nav-link
     position: relative
     font-size: 24px
@@ -171,4 +212,6 @@ export default {
 
     &:last-child
       margin-bottom: 0
+
+
 </style>

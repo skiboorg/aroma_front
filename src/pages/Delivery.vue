@@ -3,12 +3,11 @@
     <div class="container">
       <q-breadcrumbs class="breadcrumbs">
         <q-breadcrumbs-el class="text-grey-6" :to="{name:'index'}" label="Главная" />
-        <q-breadcrumbs-el label="Контакты" />
+        <q-breadcrumbs-el label="Условия доставки" />
       </q-breadcrumbs>
       <section>
-        {{staticData}}
-        <h1 class="title q-mb-lg ">Контакты</h1>
-        <div class="" v-html="staticData.contact_info"></div>
+        <h1 class="title q-mb-lg ">Условия доставки</h1>
+        <div class="" v-html="staticData.delivery_info"></div>
       </section>
     </div>
   </q-page>

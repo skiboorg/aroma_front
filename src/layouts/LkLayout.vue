@@ -1,13 +1,9 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <Header/>
-    <q-page-container class="bg-grey-2">
+    <q-page-container class="">
       <div class="container">
-        <q-breadcrumbs class="breadcrumbs lk">
-      <q-breadcrumbs-el class="text-grey-6" :to="{name:'index'}" label="Главная" />
 
-      <q-breadcrumbs-el :label="$route.meta.title" />
-    </q-breadcrumbs>
            <div class="lk-wrapper">
         <div  class="gt-sm user-menu-wrapper">
            <UserMenu/>
@@ -43,7 +39,7 @@ export default {
 <style lang="sass" scoped>
 .lk-wrapper
   display: grid
-  grid-template-columns: 1fr 4fr
+  grid-template-columns: 1fr 3fr
   grid-gap: 20px
 @media (max-width: 1024px)
   .lk-wrapper
@@ -52,4 +48,6 @@ export default {
   height: fit-content
   padding: 10px 0
   background: #FFFFFF
+  border: 1px solid #07737A
+  box-sizing: border-box
 </style>

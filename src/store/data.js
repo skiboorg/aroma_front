@@ -1,8 +1,10 @@
 import { api } from 'boot/axios'
 
 const state = () => ({
-  cart:[],
+  cart:[{items:[]}],
   orders:[],
+  staticData:[],
+  session_id:''
 
 
 })
@@ -11,20 +13,27 @@ const mutations = {
   updateCart(state,data){
     state.cart = data
   },
-  updateOrders(state,data){
-    state.orders = data
+  updateSessionID(state,data){
+    state.session_id = data
+  },
+  updateStaticData(state,data){
+    state.staticData = data
   }
 }
 
 const actions = {
-  async fetchCart({commit}){
-    const response = await api.get('/api/cart/get')
+  async fetchCart({commit,getters}){
+    console.log('getters[session_id]',getters['session_id'])
+    const response = await api.get(`/api/cart/get?session_id=${getters['session_id']}`)
     commit('updateCart',response.data)
 
   },
-   async fetchOrders({commit}){
-    const response = await api.get('/api/order/get')
-    commit('updateOrders',response.data)
+  async fetchStaticData({commit,getters}){
+    const response = await api.get(`/api/data/static`)
+    commit('updateStaticData',response.data)
+  },
+  setSessionID({commit},data){
+    commit('updateSessionID',data)
 
   },
 
@@ -32,7 +41,8 @@ const actions = {
 
 const getters = {
   cart: (state) => state.cart,
-  orders: (state) => state.orders,
+  session_id: (state) => state.session_id,
+  staticData: (state) => state.staticData
 
 
 
